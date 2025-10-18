@@ -1,0 +1,127 @@
+body {
+  background: #f0f4f8;
+  font-family: 'Tajawal', Arial, sans-serif;
+  overflow-x: hidden;
+}
+h2 {
+  color: #0d6efd;
+  text-align: center;
+  margin-bottom: 15px;
+}
+.class-card {
+  cursor: pointer;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+}
+.class-card:hover {
+  transform: scale(1.04);
+}
+.table-responsive {
+  overflow-x: auto;
+}
+table td, table th {
+  white-space: nowrap;
+  vertical-align: middle;
+  text-align: center;
+}
+.class-name {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #0d6efd;
+}
+.delete-btn {
+  background-color: #dc3545;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+#studentSection { display: none; }
+#classPage { display: none; }
+.welcome-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(135deg, #0d6efd, #5bc0de);
+  color: white;
+  animation: fadeIn 1s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.welcome-logo {
+  font-size: 70px;
+  background: white;
+  color: #0d6efd;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+.start-btn {
+  background: white;
+  color: #0d6efd;
+  font-weight: bold;
+  border-radius: 25px;
+  padding: 10px 30px;
+  border: none;
+  transition: 0.3s;
+}
+.start-btn:hover {
+  background: #e9ecef;
+  transform: scale(1.05);
+}
+.attendance-cells div {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  font-size: 11px;
+  color: white;
+  border-radius: 50%;
+  margin: 2px;
+  transition: 0.2s;
+}
+.attendance-cells div:hover {
+  transform: scale(1.2);
+}
+@media (max-width: 768px) {
+  .class-card { font-size: 1em; padding: 10px; }
+  h2 { font-size: 1.3em; }
+  .table td, .table th { white-space: nowrap; }
+}
+
+.sticky-col {
+ 
+  position: -webkit-sticky; /* for Safari */
+  position: sticky;
+  right: 0;
+  z-index: 2;
+}
+
+.table-dark .sticky-col {
+    background-color: #212529;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > .sticky-col {
+    --bs-table-accent-bg: var(--bs-table-striped-bg);
+    background-color: var(--bs-table-striped-bg);
+}
+
+.table-bordered th.sticky-col,
+.table-bordered td.sticky-col {
+    border-left-width: 0;
+}
