@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الفصول</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet">
+
+    <style>
+body {
+  background: #f0f4f8;
+  font-family: 'Tajawal', Arial, sans-serif;
+  overflow-x: hidden;
+}
+h2 {
+  color: #0d6efd;
+  text-align: center;
+  margin-bottom: 15px;
+}
+.class-card {
+  cursor: pointer;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+}
+.class-card:hover {
+  transform: scale(1.04);
+}
+.table-responsive {
+  overflow-x: auto;
+}
+table td, table th {
+  white-space: nowrap;
+  vertical-align: middle;
+  text-align: center;
+}
+.class-name {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #0d6efd;
+}
+.delete-btn {
+  background-color: #dc3545;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+#studentSection { display: none; }
+#classPage { display: none; }
+.welcome-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(135deg, #0d6efd, #5bc0de);
+  color: white;
+  animation: fadeIn 1s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.welcome-logo {
+  font-size: 70px;
+  background: white;
+  color: #0d6efd;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+.start-btn {
+  background: white;
+  color: #0d6efd;
+  font-weight: bold;
+  border-radius: 25px;
+  padding: 10px 30px;
+  border: none;
+  transition: 0.3s;
+}
+.start-btn:hover {
+  background: #e9ecef;
+  transform: scale(1.05);
+}
+.attendance-cells div {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  font-size: 11px;
+  color: white;
+  border-radius: 50%;
+  margin: 2px;
+  transition: 0.2s;
+}
+.attendance-cells div:hover {
+  transform: scale(1.2);
+}
+@media (max-width: 768px) {
+  .class-card { font-size: 1em; padding: 10px; }
+  h2 { font-size: 1.3em; }
+  .table td, .table th { white-space: nowrap; }
+}
+</style>
+  </head>
+  <body>
+
+    <!-- الشاشة الترحيبية -->
+    <div id="welcomeScreen" class="welcome-screen">
+      <div class="welcome-logo">📘</div>
+      <h1>خدمة مدارس أحد</h1>
+      <p class="mb-4">كنيسة رئيس الملائكة ميخائيل والبابا كيرلس السادس
+        بالبرشا</p>
+      <button class="start-btn" id="startBtn">ابدأ الآن</button>
+    </div>
+
+    <!-- صفحة الفصول -->
+    <div id="classPage" class="container mt-4">
+      <h2>📚 الفصول</h2>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <button class="btn btn-primary" id="addClassBtn">
+          <i class="bi bi-plus-circle me-1"></i> إضافة فصل
+        </button>
+      </div>
+      <div id="classList" class="row g-3"></div>
+    </div>
+
+    <!-- صفحة الطلاب -->
+    <div id="studentSection" class="container mt-4">
+      <h2 id="classTitle"></h2>
+      <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-success" id="addStudentBtn">
+          <i class="bi bi-person-plus-fill me-1"></i> إضافة طالب
+        </button>
+        <button class="btn btn-secondary" id="backToClasses">
+          <i class="bi bi-arrow-left-circle me-1"></i> رجوع للفصول
+        </button>
+      </div>
+      <div class="table-responsive">
+        <table
+          class="table table-bordered table-striped text-center align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>الاسم</th>
+              <th>الفصل</th>
+              <th>العنوان</th>
+              <th>الهاتف</th>
+              <th>حضور</th>
+              <th>غياب</th>
+              <th>السجل</th>
+              <th>تعديل</th>
+
+            </tr>
+          </thead>
+          <tbody id="studentTableBody"></tbody>
+        </table>
+      </div>
+      <div class="text-center mt-5">
+        <button id="downloadPdfBtn" class="btn btn-secondary">تحميل نسخة
+          PDF</button>
+      </div>
+
+    </div>
+
+    <!-- المودالات -->
+    <div class="modal fade" id="addClassModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">إضافة فصل
+              جديد</h5></div>
+          <div class="modal-body">
+            <input type="text" id="classNameInput" class="form-control"
+              placeholder="اسم الفصل">
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary"
+              data-bs-dismiss="modal">إلغاء</button>
+            <button class="btn btn-primary" id="saveClassBtn">حفظ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="addStudentModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">إضافة طالب
+              جديد</h5></div>
+          <div class="modal-body">
+            <input type="text" id="studentName" class="form-control mb-2"
+              placeholder="اسم الطالب">
+            <input type="text" id="studentClass" class="form-control mb-2"
+              placeholder="الفصل">
+
+            <input type="text" id="studentAddress" class="form-control mb-2"
+              placeholder="العنوان">
+            <input type="text" id="studentPhone" class="form-control"
+              placeholder="رقم الهاتف">
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary"
+              data-bs-dismiss="modal">إلغاء</button>
+            <button class="btn btn-primary" id="saveStudentBtn">حفظ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+          <div class="modal-body text-center">
+            <div
+              class="alert alert-warning d-flex align-items-center justify-content-center"
+              role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+              <div id="confirmMessage" class="fw-bold"></div>
+            </div>
+            <div class="mt-3">
+              <button class="btn btn-danger px-4 mx-2" id="confirmYes">
+                <i class="bi bi-trash3-fill me-1"></i> نعم
+              </button>
+              <button class="btn btn-secondary px-4 mx-2"
+                data-bs-dismiss="modal">
+                <i class="bi bi-x-circle me-1"></i> إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const welcomeScreen = document.getElementById("welcomeScreen");
+  const startBtn = document.getElementById("startBtn");
+  const classPage = document.getElementById("classPage");
+  const studentSection = document.getElementById("studentSection");
+  const classList = document.getElementById("classList");
+  const classModal = new bootstrap.Modal(document.getElementById("addClassModal"));
+  const studentModal = new bootstrap.Modal(document.getElementById("addStudentModal"));
+  const confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
+  const saveClassBtn = document.getElementById("saveClassBtn");
+  const classNameInput = document.getElementById("classNameInput");
+  const confirmMessage = document.getElementById("confirmMessage");
+  const confirmYes = document.getElementById("confirmYes");
+  const addStudentBtn = document.getElementById("addStudentBtn");
+  const saveStudentBtn = document.getElementById("saveStudentBtn");
+  const studentTableBody = document.getElementById("studentTableBody");
+  const backToClasses = document.getElementById("backToClasses");
+  const classTitle = document.getElementById("classTitle");
+  const addClassBtn = document.getElementById("addClassBtn");
+
+  let classes = JSON.parse(localStorage.getItem("classes")) || {};
+  let currentClass = "";
+  let editMode = null;
+
+  const saveToStorage = () => localStorage.setItem("classes", JSON.stringify(classes));
+
+  function showConfirm(message, onConfirm) {
+    confirmMessage.textContent = message;
+    confirmYes.onclick = () => {
+      onConfirm();
+      confirmModal.hide();
+    };
+    confirmModal.show();
+  }
+
+  startBtn.addEventListener("click", () => {
+    welcomeScreen.style.display = "none";
+    classPage.style.display = "block";
+    loadClasses();
+  });
+
+  function loadClasses() {
+    classList.innerHTML = "";
+    Object.keys(classes).forEach(name => {
+      const div = document.createElement("div");
+      div.className = "col-sm-6 col-md-4 col-lg-3";
+      div.innerHTML = `
+        <div class="class-card">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="class-name">${name}</span>
+            <div>
+              <button class="btn btn-warning btn-sm me-1 edit-class"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-danger btn-sm delete-class"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>`;
+      
+      div.querySelector(".edit-class").addEventListener("click", (e) => {
+        e.stopPropagation();
+        classNameInput.value = name;
+        editMode = name;
+        classModal.show();
+      });
+
+      div.querySelector(".delete-class").addEventListener("click", (e) => {
+        e.stopPropagation();
+        showConfirm(`هل تريد حذف الفصل "${name}"؟`, () => {
+          delete classes[name];
+          saveToStorage();
+          loadClasses();
+        });
+      });
+
+      div.querySelector(".class-card").addEventListener("click", (e) => {
+        if (!e.target.closest("button")) openClass(name);
+      });
+
+      classList.appendChild(div);
+    });
+  }
+
+  addClassBtn.addEventListener("click", () => {
+    classNameInput.value = "";
+    editMode = null;
+    classModal.show();
+  });
+
+  saveClassBtn.addEventListener("click", () => {
+    const name = classNameInput.value.trim();
+    if (!name) return alert("من فضلك أدخل اسم الفصل");
+
+    if (editMode) {
+      if (editMode !== name && classes[name]) return alert("⚠️ اسم الفصل الجديد موجود بالفعل");
+      classes[name] = classes[editMode];
+      if (editMode !== name) delete classes[editMode];
+      editMode = null;
+    } else {
+      if (classes[name]) return alert("⚠️ الفصل موجود بالفعل");
+      classes[name] = [];
+    }
+
+    saveToStorage();
+    loadClasses();
+    classModal.hide();
+  });
+
+  function openClass(name) {
+    currentClass = name;
+    classTitle.textContent = `👨‍🏫 الفصل: ${name}`;
+    classPage.style.display = "none";
+    studentSection.style.display = "block";
+    renderStudents();
+  }
+
+  backToClasses.addEventListener("click", () => {
+    studentSection.style.display = "none";
+    classPage.style.display = "block";
+  });
+
+  addStudentBtn.addEventListener("click", () => {
+    document.getElementById("studentName").value = "";
+    document.getElementById("studentAddress").value = "";
+    document.getElementById("studentPhone").value = "";
+    editMode = null;
+    studentModal.show();
+  });
+
+  saveStudentBtn.addEventListener("click", () => {
+ 
+    const name = document.getElementById("studentName").value.trim();
+
+    const studentClassInput = document.getElementById("studentClass").value.trim();
+
+    const address = document.getElementById("studentAddress").value.trim();
+
+    const phone = document.getElementById("studentPhone").value.trim();
+
+    if (!name) return alert("من فضلك أدخل اسم الطالب");
+
+    if (!classes[currentClass]) classes[currentClass] = [];
+
+   if (editMode !== null && typeof editMode === "number") {
+  classes[currentClass][editMode] = { ...classes[currentClass][editMode], name, class: studentClassInput, address, phone };
+  editMode = null;
+} else {
+  classes[currentClass].push({ name, class: studentClassInput, address, phone, attendance: {} });
+}
+    saveToStorage();
+    studentModal.hide();
+    renderStudents();
+  });
+
+  function renderStudents() {
+    studentTableBody.innerHTML = "";
+
+    if (!classes[currentClass]) classes[currentClass] = [];
+
+    classes[currentClass].forEach((s, i) => {
+      if (!s.attendance) s.attendance = {};
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${s.name}</td>
+        <td>${s.class || ""}</td>
+        <td>${s.address}</td>
+        <td>${s.phone}</td>
+        <td><button class="btn btn-success btn-sm"><i class="bi bi-check2-circle"></i></button></td>
+        <td><button class="btn btn-danger btn-sm"><i class="bi bi-x-circle"></i></button></td>
+        <td class="attendance-cells"></td>
+        <td>
+          <button class="btn btn-warning btn-sm me-1"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i></button>
+        </td>
+      `;
+
+      const presentBtn = tr.children[5].querySelector("button");
+      const absentBtn = tr.children[6].querySelector("button");
+      const attendanceCell = tr.querySelector(".attendance-cells");
+      const editBtn = tr.children[8].children[0];
+      const deleteBtn = tr.children[8].children[1];
+attendanceCell.innerHTML = "";
+Object.keys(s.attendance).forEach(date => {
+  const box = document.createElement("div");
+  box.style.background = s.attendance[date] === "present" ? "green" :
+                         s.attendance[date] === "absent" ? "red" : "gray";
+  const datePart = date.split("_")[0];
+  box.textContent = datePart;
+  box.style.display = "inline-block";
+  box.style.width = "30px";
+  box.style.height = "30px";
+  box.style.color = "white";
+  box.style.borderRadius = "50%";
+  box.style.margin = "3px";
+  box.style.fontSize = "11px";
+  box.style.textAlign = "center";
+  box.style.lineHeight = "30px";
+  box.style.cursor = "pointer";
+  box.title = "اضغط لحذف هذا السجل";
+
+  // ✅ حذف الغياب أو الحضور عند الضغط على الدائرة
+  box.addEventListener("click", () => {
+    showConfirm(`هل تريد حذف هذا السجل (${datePart})؟`, () => {
+      delete s.attendance[date];
+      saveToStorage();
+      renderStudents();
+    });
+  });
+
+  attendanceCell.appendChild(box);
+});
+
+
+      // ✅ تسجيل الحضور أكتر من مرة في نفس اليوم
+      presentBtn.addEventListener("click", () => {
+        const now = new Date();
+        const dateKey = `${now.getDate()}/${now.getMonth() + 1}`;
+        const timeKey = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
+        const fullKey = `${dateKey}_${timeKey}`;
+        s.attendance[fullKey] = "present";
+        saveToStorage();
+        renderStudents();
+      });
+
+      // ✅ تسجيل الغياب أكتر من مرة في نفس اليوم
+      absentBtn.addEventListener("click", () => {
+        const now = new Date();
+        const dateKey = `${now.getDate()}/${now.getMonth() + 1}`;
+        const timeKey = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
+        const fullKey = `${dateKey}_${timeKey}`;
+        s.attendance[fullKey] = "absent";
+        saveToStorage();
+        renderStudents();
+      });
+
+      editBtn.addEventListener("click", () => {
+        document.getElementById("studentName").value = s.name;
+        document.getElementById("studentAddress").value = s.address;
+        document.getElementById("studentPhone").value = s.phone;
+        editMode = i;
+        studentModal.show();
+      });
+
+      deleteBtn.addEventListener("click", () => {
+        showConfirm("هل تريد حذف هذا الطالب؟", () => {
+          classes[currentClass].splice(i, 1);
+          saveToStorage();
+          renderStudents();
+        });
+      });
+
+      studentTableBody.appendChild(tr);
+    });
+  }
+
+  loadClasses();
+});
+</script>
+
+  </body>
+</html>
